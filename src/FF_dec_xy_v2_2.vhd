@@ -20,7 +20,7 @@ entity FF_dec_xy is
         x_out : out std_logic_vector(6 downto 0);
         y_out : out std_logic_vector(5 downto 0);
 
-        col_detect : out std_logic -- à 1 quand il y a une collision
+        col_detect : out std_logic -- '1' when collision detected
     );
 end FF_dec_xy;
 
@@ -106,9 +106,8 @@ begin
 --        end if;
 --    end process;
 
-
     -- test en passant par un signal (collision_detected)
-    process(clk, ce)
+    process(clk, ce, rsta)
     begin
         if rising_edge(clk) then
             if ce = '1' then
@@ -117,8 +116,8 @@ begin
                 else
                     collision_detected <= '0'; -- Réinitialiser la détection de collision
 
-                    for i in 1 to 255 loop
-                        if (i < to_integer(unsigned(n)) +1) then
+                    for i in 2 to 255 loop
+                        if (i < to_integer(unsigned(n))) then
                             if (s_x(i) = s_x(0)) and (s_y(i) = s_y(0)) then
                                 collision_detected <= '1';
                             end if;

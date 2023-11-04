@@ -30,6 +30,7 @@ entity v2_3 is
         LED_OUT : out std_logic_vector(4 downto 0);
         led_col : out std_logic;
         led_ce : out std_logic;
+        led_rst : out std_logic;
 
         -- sept segements
 
@@ -599,5 +600,6 @@ begin
 
     led_col <= s_col_detect;
     led_ce <= s_ce_2;
+    led_rst <= s_rsta;
     
 end Behavioral;
