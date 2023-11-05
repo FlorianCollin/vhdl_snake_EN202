@@ -6,22 +6,26 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.constants_pkg.all;
+
+
 entity address_counter is
     port (
         clk : in std_logic;
         rsta : in std_logic;
         address_rom : out std_logic_vector(12 downto 0);
-        x_rom : out std_logic_vector(6 downto 0); -- [0;95]
-        y_rom : out std_logic_vector(5 downto 0) -- [0;64]
+        x_rom : out std_logic_vector(X_LENGTH - 1 downto 0); -- [0;95]
+        y_rom : out std_logic_vector(Y_LENGTH - 1 downto 0) -- [0;64]
     );
 end address_counter;
 
 architecture Behavioral of address_counter is
-    signal count_x : unsigned(6 downto 0) := (others => '0');
-    signal count_y : unsigned(5 downto 0) := (others => '0');
+    signal count_x : unsigned(X_LENGTH - 1 downto 0) := (others => '0');
+    signal count_y : unsigned(Y_LENGTH - 1 downto 0) := (others => '0');
     signal count_n : unsigned(12 downto 0) := (others => '0');
-    constant max_x : unsigned(6 downto 0) :=  (to_unsigned(95, 7));
-    constant max_y : unsigned(5 downto 0) := (to_unsigned(63, 6));
+    constant max_x : unsigned(X_LENGTH - 1 downto 0) :=  (to_unsigned(95, X_LENGTH));
+    constant max_y : unsigned(Y_LENGTH - 1 downto 0) := (to_unsigned(63, Y_LENGTH));
     constant max_n : unsigned(12 downto 0) := (to_unsigned(6143, 13));
 
 begin

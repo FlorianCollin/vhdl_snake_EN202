@@ -6,19 +6,22 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.constants_pkg.all;
+
 entity FF_dec_xy is
     port(
         clk : in std_logic;
         rsta : in std_logic;
         ce : in std_logic;
 
-        n : in std_logic_vector(7 downto 0);
+        n : in std_logic_vector(7 downto 0); -- seletor
 
-        x_in : in std_logic_vector(6 downto 0);
-        y_in : in std_logic_vector(5 downto 0);
+        x_in : in std_logic_vector(X_LENGTH - 1 downto 0);
+        y_in : in std_logic_vector(Y_LENGTH - 1 downto 0);
 
-        x_out : out std_logic_vector(6 downto 0);
-        y_out : out std_logic_vector(5 downto 0);
+        x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+        y_out : out std_logic_vector(Y_LENGTH - 1 downto 0);
 
         col_detect : out std_logic -- '1' when collision detected
     );
@@ -28,11 +31,11 @@ architecture Behavioral of FF_dec_xy is
     component mux_xy_8 is
         port (
             mux_selector : in std_logic_vector(2 downto 0);
-            x0, x1, x2, x3, x4, x5, x6, x7 : in std_logic_vector(6 downto 0);
-            y0, y1, y2, y3, y4, y5, y6, y7 : in std_logic_vector(5 downto 0);
+            x0, x1, x2, x3, x4, x5, x6, x7 : in std_logic_vector(X_LENGTH - 1 downto 0);
+            y0, y1, y2, y3, y4, y5, y6, y7 : in std_logic_vector(Y_LENGTH - 1 downto 0);
 
-            x_out : out std_logic_vector(6 downto 0);
-            y_out : out std_logic_vector(5 downto 0)
+            x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y_out : out std_logic_vector(Y_LENGTH - 1 downto 0)
         );
     end component;
     component FF_xy is
@@ -40,17 +43,17 @@ architecture Behavioral of FF_dec_xy is
             clk : in std_logic;
             rsta : in std_logic;
             ce : in std_logic;
-            x : in std_logic_vector(6 downto 0);
-            y : in std_logic_vector(5 downto 0);
-            x_out : out std_logic_vector(6 downto 0);
-            y_out : out std_logic_vector(5 downto 0)
+            x : in std_logic_vector(X_LENGTH - 1 downto 0);
+            y : in std_logic_vector(Y_LENGTH - 1 downto 0);
+            x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y_out : out std_logic_vector(Y_LENGTH - 1 downto 0)
         );
     end component;
 
     constant nb_FF : integer := 256;
     
-    type inst_tab_x is array(0 to nb_FF) of std_logic_vector(6 downto 0);
-    type inst_tab_y is array(0 to nb_FF) of std_logic_vector(5 downto 0);
+    type inst_tab_x is array(0 to nb_FF) of std_logic_vector(X_LENGTH - 1 downto 0);
+    type inst_tab_y is array(0 to nb_FF) of std_logic_vector(Y_LENGTH - 1 downto 0);
     
     signal s_clk, s_rsta, s_ce : std_logic;
 
@@ -106,7 +109,6 @@ begin
 --        end if;
 --    end process;
 
-    -- test en passant par un signal (collision_detected)
     process(clk, ce, rsta)
     begin
         if rising_edge(clk) then
@@ -114,17 +116,15 @@ begin
                 if n = x"00" then
                     col_detect <= '0';
                 else
-                    collision_detected <= '0'; -- Réinitialiser la détection de collision
-
-                    for i in 2 to 255 loop
+                    collision_detected <= '0';
+                    for i in 2 to nb_FF - 1 loop
                         if (i < to_integer(unsigned(n))) then
                             if (s_x(i) = s_x(0)) and (s_y(i) = s_y(0)) then
                                 collision_detected <= '1';
                             end if;
                         end if;
                     end loop;
-
-                    col_detect <= collision_detected; -- Mettre à jour la sortie de la collision
+                    col_detect <= collision_detected;
                 end if;
             end if;
         end if;

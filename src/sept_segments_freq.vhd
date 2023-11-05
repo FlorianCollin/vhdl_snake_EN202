@@ -16,18 +16,18 @@ end sept_segments_freq;
 
  
 architecture behav of sept_segments_freq is
-    signal count_perception : unsigned(15 downto 0) := "0000000000000000";
+    signal count_perception : unsigned(15 downto 0) := (others => '0');
 begin
     process(clk, rsta)
     begin
         if rising_edge(clk) then
             if rsta = '1' then
-                count_perception <= "0000000000000000";
+                count_perception <= (others => '0');
                 ce_perception <= '0';
             else
                 count_perception <= count_perception + 1;
-                if count_perception = "1000001000110101" then
-                    count_perception <= "0000000000000000";
+                if count_perception = to_unsigned(33333, count_perception'length) then
+                    count_perception <= (others => '0');
                     ce_perception <= '1';
                 else
                     ce_perception <= '0';

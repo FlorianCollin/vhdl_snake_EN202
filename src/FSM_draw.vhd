@@ -2,13 +2,6 @@
 --    (c)2023 F. COLLIN
 ----------------------------------------------------------------------------------------------------
 
-
--- FSM_draw :
-
--- draw_first_apple : Etat draw_first_appleial ou la pomme est désiner au centre de l'écran 
-
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -21,6 +14,7 @@ entity FSM_draw is
         new_apple : in std_logic;
         col_detect : in std_logic;
         btn : in std_logic;
+
         rsta : out std_logic;
         appleFFsig : out std_logic;
         incr_size : out std_logic;
@@ -43,7 +37,6 @@ architecture Behavioral of FSM_draw is
         wait_ce, -- attente de ce
         draw_apple, -- dessin d'une nouvelle pomme
         draw_first_apple, -- dessin de la première pomme
-        --init_appleFF, -- permet d'actualiser la FF pour la pomme lors de l'initialisation
         appleFF -- actualisation de la valeur des coordonée de la pomme
     );
     signal current_state : state := start;
@@ -51,7 +44,7 @@ architecture Behavioral of FSM_draw is
 
 begin
 
-    process_next_state : process(current_state,ce,new_apple)
+    process_next_state : process(current_state,ce,new_apple,btn, col_detect)
     begin
         case current_state is
             --0

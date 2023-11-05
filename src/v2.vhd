@@ -2,17 +2,18 @@
 --    (c)2023 F. COLLIN
 ----------------------------------------------------------------------------------------------------
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-----------------------------------------------------------------------------------------------------------------
+library work;
+use work.constants_pkg.all;
 
 entity v2_3 is
     port(
         clk    : in std_logic;
-        rsta_i : in std_logic; -- actif à l'état bas
-        
+        rsta_i : in std_logic;
+
         btnu : in std_logic; -- up
         btnl : in std_logic; -- left
         btnr : in std_logic; -- right
@@ -27,14 +28,12 @@ entity v2_3 is
         PMOD_VCCEN   : out std_logic; -- 9
         PMOD_EN      : out std_logic; -- 10
         
+        -- for debug
         LED_OUT : out std_logic_vector(4 downto 0);
         led_col : out std_logic;
         led_ce : out std_logic;
         led_rst : out std_logic;
-
-        -- sept segements
-
-        sept_segments : out std_logic_vector(6 downto 0); -- sortie du mux8
+        sept_segments : out std_logic_vector(6 downto 0);
         an : out std_logic_vector(7 downto 0)
 
     );
@@ -45,9 +44,7 @@ end v2_3;
 architecture Behavioral of v2_3 is
 
     -- component
-
-    -- les compteurs
-
+    -- counters 
     component counter is
         generic (
             count_width : integer := 8;
@@ -56,10 +53,9 @@ architecture Behavioral of v2_3 is
         port (
             clk : in std_logic;
             rsta : in std_logic;
-            ce1 : in std_logic; -- ce standard
-            ce2 : in std_logic; -- ce pour ralentir le counter
+            ce1 : in std_logic;
+            ce2 : in std_logic;
             decr : in std_logic;
-    
             count : out std_logic_vector(count_width - 1 downto 0)
         );
     end component;
@@ -67,7 +63,7 @@ architecture Behavioral of v2_3 is
     component counter_basic is
         generic (
             count_width : integer := 8;
-            max_value : integer := 63 -- ATTENTION : Il faut respecter max_value < 2^count_width !!
+            max_value : integer := 63
         );
         port (
             clk : in std_logic;
@@ -79,24 +75,23 @@ architecture Behavioral of v2_3 is
     component snake_size_counter is
         generic (
             count_width : integer := 4;
-            max_value : integer := 7 -- ATTENTION : Il faut respecter max_value < count_width !!
+            max_value : integer := 7
         );
         port (
             clk : in std_logic;
             rsta : in std_logic;
             ce : in std_logic;
             decr : in std_logic;
-    
             count : out std_logic_vector(count_width - 1 downto 0)
         );
     end component;
 
-    -- combinatoire élementaire
+    -- elementary component
 
     component equal_xy is
         port (
-            x0, x1 : in std_logic_vector(6 downto 0);
-            y0, y1 : in std_logic_vector(5 downto 0);
+            x0, x1 : in std_logic_vector(X_LENGTH - 1 downto 0);
+            y0, y1 : in std_logic_vector(Y_LENGTH - 1 downto 0);
             f : out std_logic
         );
     end component;
@@ -125,7 +120,8 @@ architecture Behavioral of v2_3 is
               PMOD_EN      : out STD_LOGIC -- 10
        );
     end component;
-
+    
+    -- for input button
     component detect_impulsion is
         port (
             clock : in std_logic;
@@ -133,12 +129,12 @@ architecture Behavioral of v2_3 is
             btn_output : out std_logic
         );
     end component;
-
+    
     component ce_gen is
         port(
-            horloge : in std_logic; -- f = 100 MHz / Th = 10 ns 
-            rsta : in std_logic; -- btnc
-            speed : in std_logic_vector(7 downto 0);
+            horloge : in std_logic;
+            rsta : in std_logic;
+            speed : in std_logic_vector(7 downto 0); -- pilot by the snake size value
             ce : out std_logic
         );
     end component;
@@ -146,7 +142,7 @@ architecture Behavioral of v2_3 is
     component FSM is
         Port (
             clk  : in std_logic;
-            rst : in std_logic; -- btnc -- passage à l'état 'state_wait'
+            rst : in std_logic;
             btnu : in STD_LOGIC;
             btnl : in STD_LOGIC;
             btnr : in STD_LOGIC;
@@ -156,8 +152,7 @@ architecture Behavioral of v2_3 is
             ce_y : out STD_LOGIC;
             decr_x : out STD_LOGIC;
             decr_y : out STD_LOGIC;
-            led : out std_logic_vector(4 downto 0)
-
+            led : out std_logic_vector(4 downto 0) -- debug
         );
     end component;
 
@@ -169,38 +164,32 @@ architecture Behavioral of v2_3 is
             new_apple : in std_logic;
             col_detect : in std_logic;
             btn : in std_logic;
-
             rsta : out std_logic;
             appleFFsig : out std_logic;
             incr_size : out std_logic;
-            we : out std_logic; -- 1
+            we : out std_logic; -- 1 (not used)
             selector_menu : out std_logic_vector(1 downto 0);
             selector_mux : out std_logic_vector(1 downto 0);
-            state_to_print : out std_logic_vector(3 downto 0)
-
+            state_to_print : out std_logic_vector(3 downto 0) -- debug
        );
     end component;
 
     component mux is
         port(
             s : in std_logic_vector(1 downto 0);
+            x0 : in std_logic_vector(X_LENGTH - 1 downto 0); -- head
+            x1 : in std_logic_vector(X_LENGTH - 1 downto 0); -- tail
+            x2 : in std_logic_vector(X_LENGTH - 1 downto 0); -- apple
+            x3 : in std_logic_vector(X_LENGTH - 1 downto 0); -- full picture
+            y0 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- head
+            y1 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- tail
+            y2 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- apple
+            y3 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- full picture
+            color : in std_logic_vector(RGB_LENGTH - 1 downto 0);
     
-            x0 : in std_logic_vector(6 downto 0); -- head
-            x1 : in std_logic_vector(6 downto 0); -- tail
-            x2 : in std_logic_vector(6 downto 0); -- apple
-            x3 : in std_logic_vector(6 downto 0); -- full picture
-    
-    
-            y0 : in std_logic_vector(5 downto 0); -- head
-            y1 : in std_logic_vector(5 downto 0); -- tail
-            y2 : in std_logic_vector(5 downto 0); -- apple
-            y3 : in std_logic_vector(5 downto 0); -- full picture
-    
-            color : in std_logic_vector(15 downto 0);
-    
-            x_out : out std_logic_vector(6 downto 0);
-            y_out : out std_logic_vector(5 downto 0);
-            color_out : out std_logic_vector(15 downto 0)
+            x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y_out : out std_logic_vector(Y_LENGTH - 1 downto 0);
+            color_out : out std_logic_vector(RGB_LENGTH - 1 downto 0)
         );
     end component;
 
@@ -210,34 +199,30 @@ architecture Behavioral of v2_3 is
             clk : in std_logic;
             rsta : in std_logic;
             ce : in std_logic;
-    
             n : in std_logic_vector(7 downto 0);
-            
-            x_in : in std_logic_vector(6 downto 0);
-            y_in : in std_logic_vector(5 downto 0);
-            
-            x_out : out std_logic_vector(6 downto 0);
-            y_out : out std_logic_vector(5 downto 0);
+            x_in : in std_logic_vector(X_LENGTH - 1 downto 0);
+            y_in : in std_logic_vector(Y_LENGTH - 1 downto 0);
+            x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y_out : out std_logic_vector(Y_LENGTH - 1 downto 0);
 
             col_detect : out std_logic
         );
     end component;
     
-    -- Cette  FF permet de faire des temporisation etc .. 
+    -- custom flip-flop
     component FF_xy is
         port(
             clk : in std_logic;
             rsta : in std_logic;
             ce : in std_logic;
-            x : in std_logic_vector(6 downto 0);
-            y : in std_logic_vector(5 downto 0);
-            x_out : out std_logic_vector(6 downto 0);
-            y_out : out std_logic_vector(5 downto 0)
+            x : in std_logic_vector(X_LENGTH - 1 downto 0);
+            y : in std_logic_vector(Y_LENGTH - 1 downto 0);
+            x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y_out : out std_logic_vector(Y_LENGTH - 1 downto 0)
         );
     end component;
 
-    -- sept_segments v2.2
-
+    -- sept_segments for debug
     component sept_segments_module is
         port (
             clk : in std_logic;
@@ -248,9 +233,8 @@ architecture Behavioral of v2_3 is
             an : out std_logic_vector(7 downto 0)
         );
     end component;
-
-    -- v2.3
-
+    
+    -- menu 
     component menu is
         port(
             clk : in std_logic;
@@ -259,9 +243,9 @@ architecture Behavioral of v2_3 is
             -- s=1 : game_over 
             -- s=2 : refresh_screen
             s : in std_logic_vector(1 downto 0);
-            data : out std_logic_vector(15 downto 0);
-            x : out std_logic_vector(6 downto 0);
-            y : out std_logic_vector(5 downto 0)
+            data : out std_logic_vector(RGB_LENGTH - 1 downto 0);
+            x : out std_logic_vector(X_LENGTH - 1 downto 0);
+            y : out std_logic_vector(Y_LENGTH - 1 downto 0)
         );
     end component;
 
@@ -271,7 +255,6 @@ architecture Behavioral of v2_3 is
 
 
     -- constant
-    constant BPP : integer := 16;
     constant CLK_FREQ_HZ : integer := 100000000;
     constant GREYSCALE   : boolean := False;
     constant LEFT_SIDE   : boolean := False;
@@ -291,46 +274,41 @@ architecture Behavioral of v2_3 is
     signal s_clk, s_rsta, s_rsta_btn: std_logic;
     signal s_btnu, s_btnd, s_btnr, s_btnl, s_btnc : std_logic;
 
-    signal s_color : std_logic_vector(BPP - 1 downto 0); -- sortie du mux
+    signal s_color : std_logic_vector(RGB_LENGTH - 1 downto 0); -- sortie du mux
 
     signal s_decr_x, s_decr_y : std_logic;
     signal s_ce_x, s_ce_y : std_logic;
 
     signal s_ce_2 : std_logic;
     
-    signal s_pix_col : std_logic_vector(6 downto 0);
-    signal s_pix_row : std_logic_vector(5 downto 0);
-    
     signal s_pix_write : std_logic;
-    signal s_pix_data_out : std_logic_vector(15 downto 0);
+    signal s_pix_data_out : std_logic_vector(RGB_LENGTH - 1 downto 0);
 
-    signal s_x, s_x_new, s_x_FF_out, s_x_apple, s_x_apple_to_print: std_logic_vector(6 downto 0);
-    signal s_y, s_y_new, s_y_FF_out, s_y_apple, s_y_apple_to_print: std_logic_vector(5 downto 0);
+    signal s_x, s_x_new, s_x_FF_out, s_x_apple, s_x_apple_to_print: std_logic_vector(X_LENGTH - 1 downto 0);
+    signal s_y, s_y_new, s_y_FF_out, s_y_apple, s_y_apple_to_print: std_logic_vector(Y_LENGTH - 1 downto 0);
     
     -- (s_x, s_y) : sortie du mux et entr�e PmodOLEDrgb_bitmap
     -- (s_x_new, s_y_new) : sortie des compteurs et entr�e de la FF et du mux
     -- (s_x_FF_out, s_y_FF_out) : sortie de la FF et entr�e du mux
     
-    signal s_mux_select : std_logic_vector(1 downto 0); -- sortie de la FSM et entrée du mux
+    signal s_mux_select : std_logic_vector(1 downto 0);
+    signal s_menu_select : std_logic_vector(1 downto 0);
+
 
     signal s_n : std_logic_vector(7 downto 0); -- v2_3
     
     signal s_new_apple : std_logic := '0';
-
     signal s_snake_damage : std_logic;
-
     signal s_incr_size : std_logic;
-
     signal s_appleFFsig : std_logic;
 
     -- v2.2
     signal s_col_detect : std_logic;
 
     -- v2.3
-    signal s_menu_select : std_logic_vector(1 downto 0);
-    signal s_color_menu : std_logic_vector(15 downto 0);
-    signal s_x_menu : std_logic_vector(6 downto 0);
-    signal s_y_menu : std_logic_vector(5 downto 0);
+    signal s_color_menu : std_logic_vector(RGB_LENGTH - 1 downto 0);
+    signal s_x_menu : std_logic_vector(X_LENGTH - 1 downto 0);
+    signal s_y_menu : std_logic_vector(Y_LENGTH - 1  downto 0);
 
     signal s_fsm_draw_state : std_logic_vector(3 downto 0);
 
@@ -474,7 +452,7 @@ begin
     inst_PmodOLEDrgb_bitmap : PmodOLEDrgb_bitmap
     generic map (
         CLK_FREQ_HZ => CLK_FREQ_HZ,
-        BPP         => BPP,
+        BPP         => RGB_LENGTH,
         GREYSCALE   => GREYSCALE,
         LEFT_SIDE   => LEFT_SIDE
     )

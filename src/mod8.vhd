@@ -45,6 +45,6 @@ begin
     
     end process;
     
-    sortie <= std_logic_vector(count); -- permet de créer un signal de selection pour le mux
+    sortie <= std_logic_vector(count);
     
 end behav;

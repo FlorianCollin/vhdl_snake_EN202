@@ -6,28 +6,31 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.constants_pkg.all;
+
 -- mux est le multiplexer qui ce positionne en avant dernier bloc il est controllé par FSM_draw
 
 entity mux is
     port(
         s : in std_logic_vector(1 downto 0);
 
-        x0 : in std_logic_vector(6 downto 0); -- head
-        x1 : in std_logic_vector(6 downto 0); -- tail
-        x2 : in std_logic_vector(6 downto 0); -- apple
-        x3 : in std_logic_vector(6 downto 0); -- full picture
+        x0 : in std_logic_vector(X_LENGTH - 1 downto 0); -- head
+        x1 : in std_logic_vector(X_LENGTH - 1 downto 0); -- tail
+        x2 : in std_logic_vector(X_LENGTH - 1 downto 0); -- apple
+        x3 : in std_logic_vector(X_LENGTH - 1 downto 0); -- full picture
 
 
-        y0 : in std_logic_vector(5 downto 0); -- head
-        y1 : in std_logic_vector(5 downto 0); -- tail
-        y2 : in std_logic_vector(5 downto 0); -- apple
-        y3 : in std_logic_vector(5 downto 0); -- full picture
+        y0 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- head
+        y1 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- tail
+        y2 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- apple
+        y3 : in std_logic_vector(Y_LENGTH - 1 downto 0); -- full picture
 
-        color : in std_logic_vector(15 downto 0);
+        color : in std_logic_vector(RGB_LENGTH - 1 downto 0);
 
-        x_out : out std_logic_vector(6 downto 0);
-        y_out : out std_logic_vector(5 downto 0);
-        color_out : out std_logic_vector(15 downto 0)
+        x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+        y_out : out std_logic_vector(Y_LENGTH - 1 downto 0);
+        color_out : out std_logic_vector(RGB_LENGTH - 1 downto 0)
     );
 end mux;
 
@@ -35,7 +38,7 @@ architecture Behavioral of mux is
 
 begin
 
-    process(s, x0, y0, x1, y1)
+    process(s, x0, y0, x1, y1, x2, y2, x3, y3, color)
     begin
         case s is
             when "00" => -- ecriture du nouveau pixel

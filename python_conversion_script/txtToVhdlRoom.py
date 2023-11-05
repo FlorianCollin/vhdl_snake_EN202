@@ -1,7 +1,7 @@
 with open("image_convertie.txt", "r") as fichier_texte:
     lignes = fichier_texte.readlines()
 
-with open("rom.vhdl", "w") as fichier_vhdl:
+with open("rom.vhd", "w") as fichier_vhdl:
     fichier_vhdl.write("""
 library ieee;
 use ieee.std_logic_1164.all;

@@ -10,7 +10,7 @@ use ieee.numeric_std.all;
 entity counter is
     generic (
         count_width : integer := 8;
-        max_value : integer := 255 -- ATTENTION : Il faut respecter max_value < count_width !!
+        max_value : integer := 255
     );
     port (
         clk : in std_logic;
@@ -18,7 +18,6 @@ entity counter is
         ce1 : in std_logic;
         ce2 : in std_logic;
         decr : in std_logic;
-
         count : out std_logic_vector(count_width - 1 downto 0)
     );
 end entity counter;

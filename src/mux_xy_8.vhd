@@ -6,14 +6,17 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.constants_pkg.all;
+
 entity mux_xy_8 is
     port (
         mux_selector : in std_logic_vector(2 downto 0);
-        x0, x1, x2, x3, x4, x5, x6, x7 : in std_logic_vector(6 downto 0);
-        y0, y1, y2, y3, y4, y5, y6, y7 : in std_logic_vector(5 downto 0);
+        x0, x1, x2, x3, x4, x5, x6, x7 : in std_logic_vector(X_LENGTH - 1 downto 0);
+        y0, y1, y2, y3, y4, y5, y6, y7 : in std_logic_vector(Y_LENGTH - 1 downto 0);
 
-        x_out : out std_logic_vector(6 downto 0);
-        y_out : out std_logic_vector(5 downto 0)
+        x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
+        y_out : out std_logic_vector(Y_LENGTH - 1 downto 0)
     );
 end mux_xy_8;
 
