@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------------------------------------
 --    (c)2023 F. COLLIN
+-- This counter allows writing the content of a ROM to the OLED screen by providing (x, y, address).
+-- Thus, we iterate through all the addresses in our ROM and provide the coordinates associated with each address.
 ----------------------------------------------------------------------------------------------------
 
 library ieee;

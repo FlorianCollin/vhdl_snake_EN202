@@ -14,7 +14,7 @@ This project is a classic Snake game implemented on a Digilent Nexys FPGA board 
 
 ## Introduction
 
-This Snake game project was developed by COLLIN FLORIAN as part of a school project at ENSEIRB-MATMECA. The goal of this project was to create a functioning Snake game on an FPGA board using VHDL. The project utilizes a Nexys FPGA board and a PMOD RGB OLED display to provide an interactive gaming experience.
+This Snake game project was developed as part of a school project at ENSEIRB-MATMECA. The goal of this project was to create a functioning Snake game on an FPGA board using VHDL. The project utilizes a Nexys FPGA board and a PMOD RGB OLED display to provide an interactive gaming experience.
 
 ## Project Overview
 
