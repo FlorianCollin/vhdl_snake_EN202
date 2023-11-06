@@ -10,7 +10,7 @@ use ieee.numeric_std.all;
 entity counter_basic is
     generic (
         count_width : integer := 8;
-        max_value : integer := 63 -- ATTENTION : Il faut respecter max_value < 2^count_width !!
+        max_value : integer := 63
     );
     port (
         clk : in std_logic;

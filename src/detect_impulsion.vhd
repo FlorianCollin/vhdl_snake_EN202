@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------------------------------------
 --    (c)2023 F. COLLIN
+-- 'detect_impulse' is one of my basic blocks that conditions signals coming from buttons
+-- to be '1' for a single clock period following a press.
 ----------------------------------------------------------------------------------------------------
 
 library ieee;

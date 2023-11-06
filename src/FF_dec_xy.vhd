@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------------------------------------
 --    (c)2023 F. COLLIN
+-- This block is a shift register for (x, y), and it also has a selection output (integrated multiplexer)
+-- and control over the equality of the first n registers.
 ----------------------------------------------------------------------------------------------------
 
 library ieee;

@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------------------------------------
 --    (c)2023 F. COLLIN
+-- 'counter' is a counter that has 2 enable signals, which allow adjusting its speed through one signal
+-- and activating it through another.
 ----------------------------------------------------------------------------------------------------
 
 library ieee;
