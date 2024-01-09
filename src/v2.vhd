@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------------------------------------
 --    (c)2023 F. COLLIN
+
+-- top level
 ----------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -63,7 +65,7 @@ architecture Behavioral of v2_3 is
     component counter_basic is
         generic (
             count_width : integer := 8;
-            max_value : integer := 63
+            max_value : integer := SCREEN_LENGTH
         );
         port (
             clk : in std_logic;
@@ -253,19 +255,13 @@ architecture Behavioral of v2_3 is
 
 ----------------------------------------------------------------------------------------------------------------
 
+    
+    --  glocal constant can be found in "constant_pkg.vhd"
 
-    -- constant
+    -- constant for oledScreen
     constant CLK_FREQ_HZ : integer := 100000000;
     constant GREYSCALE   : boolean := False;
     constant LEFT_SIDE   : boolean := False;
-    
-    -- constant for x counter 0 -> 95
-    constant count_width_x : integer := 7;
-    constant max_value_x : integer := 95;
-
-    -- constant for y conter 0 -> 63
-    constant count_width_y : integer := 6;
-    constant max_value_y : integer := 63;
 
 ----------------------------------------------------------------------------------------------------------------
 
@@ -287,32 +283,23 @@ architecture Behavioral of v2_3 is
     signal s_x, s_x_new, s_x_FF_out, s_x_apple, s_x_apple_to_print: std_logic_vector(X_LENGTH - 1 downto 0);
     signal s_y, s_y_new, s_y_FF_out, s_y_apple, s_y_apple_to_print: std_logic_vector(Y_LENGTH - 1 downto 0);
     
-    -- (s_x, s_y) : sortie du mux et entr�e PmodOLEDrgb_bitmap
-    -- (s_x_new, s_y_new) : sortie des compteurs et entr�e de la FF et du mux
-    -- (s_x_FF_out, s_y_FF_out) : sortie de la FF et entr�e du mux
-    
     signal s_mux_select : std_logic_vector(1 downto 0);
     signal s_menu_select : std_logic_vector(1 downto 0);
 
-
-    signal s_n : std_logic_vector(7 downto 0); -- v2_3
+    signal s_n : std_logic_vector(7 downto 0);
     
     signal s_new_apple : std_logic := '0';
     signal s_snake_damage : std_logic;
     signal s_incr_size : std_logic;
     signal s_appleFFsig : std_logic;
 
-    -- v2.2
     signal s_col_detect : std_logic;
 
-    -- v2.3
     signal s_color_menu : std_logic_vector(RGB_LENGTH - 1 downto 0);
     signal s_x_menu : std_logic_vector(X_LENGTH - 1 downto 0);
     signal s_y_menu : std_logic_vector(Y_LENGTH - 1  downto 0);
 
     signal s_fsm_draw_state : std_logic_vector(3 downto 0);
-
-    
 
 ----------------------------------------------------------------------------------------------------------------
 
@@ -362,8 +349,8 @@ begin
 
     inst_counter_apple_x : counter_basic
     generic map (
-        count_width => 7,
-        max_value => 95
+        count_width => X_LENGTH,
+        max_value => SCREEN_LENGTH - 1 -- 63 for oledScreen
     )
     port map(
         clk => s_clk,
@@ -373,8 +360,8 @@ begin
 
     inst_counter_apple_y : counter_basic
     generic map (
-        count_width => 6,
-        max_value => 95
+        count_width => Y_LENGTH,
+        max_value => SCREEN_WIDTH - 1 -- 95 for oledScreen
     )
     port map(
         clk => s_clk,
@@ -387,7 +374,7 @@ begin
     inst_snake_size_counter : snake_size_counter
     generic map(
         count_width => 8,
-        max_value => 255
+        max_value => MAX_SNAKE_SIZE - 1
     )
     port map (
         clk => s_clk,
@@ -399,8 +386,8 @@ begin
 
     inst_counter_x : counter
     generic map (
-        count_width => count_width_x,
-        max_value => max_value_x
+        count_width => X_LENGTH,
+        max_value => SCREEN_LENGTH - 1
     )
     port map(
         clk => s_clk,
@@ -414,8 +401,8 @@ begin
     
     inst_counter_y : counter
     generic map (
-        count_width => count_width_y,
-        max_value => max_value_y
+        count_width => Y_LENGTH,
+        max_value => SCREEN_WIDTH - 1
     )
     port map(
         clk => s_clk,

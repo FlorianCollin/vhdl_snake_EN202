@@ -67,5 +67,4 @@ begin
     y_rom <= std_logic_vector(count_y);
     address_rom <= std_logic_vector(count_n);
 
-
 end Behavioral;

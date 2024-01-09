@@ -31,6 +31,7 @@ entity mux is
         x_out : out std_logic_vector(X_LENGTH - 1 downto 0);
         y_out : out std_logic_vector(Y_LENGTH - 1 downto 0);
         color_out : out std_logic_vector(RGB_LENGTH - 1 downto 0)
+        
     );
 end mux;
 
@@ -54,12 +55,16 @@ begin
             when "10" => -- dessin d'une nouvelle pomme
                 x_out <= x2;
                 y_out <= y2;
-                color_out <= "1111100000000000";
+                color_out <= (others => '1');
 
             when "11" => -- menu
                 x_out <= x3;
                 y_out <= y3;
-                color_out <= color;
+                if MENU_ON then
+                    color_out <= color;
+                else
+                    color_out <= (others => '0');
+                end if;
 
             when others =>
                 null;
